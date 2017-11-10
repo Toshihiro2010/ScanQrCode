@@ -13,6 +13,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btnGoScan;
+    private Button btnGoMyScan;
     public static final int REQUEST_QR_SCAN = 4;
 
     private TextView tvResult;
@@ -28,17 +29,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bidWidGet();
 
         btnGoScan.setOnClickListener(this);
+        btnGoMyScan.setOnClickListener(this);
+
     }
 
     private void bidWidGet() {
         btnGoScan = (Button) findViewById(R.id.btnGoScanQrCode);
         tvResult = (TextView) findViewById(R.id.tvResult);
+        btnGoMyScan = (Button) findViewById(R.id.btnGoMyScan);
     }
 
     @Override
     public void onClick(View view) {
         if (view == btnGoScan) {
-
 //            try {
 //
 //                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
@@ -79,12 +82,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                Intent intent = new Intent(Intent.ACTION_VIEW);
 //                intent.setData(Uri.parse("market://details?id=" + myPackageName));
 //                startActivity(intent);
-//
 //            }
 
 
-
-
+        } else if (view == btnGoMyScan) {
+            Intent intent = new Intent(this, MyCameraScan.class);
+            startActivityForResult(intent, REQUEST_QR_SCAN);
+            //startActivity(intent);
 
         }
     }
@@ -100,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_QR_SCAN && resultCode == RESULT_OK) {
             strResult = data.getStringExtra("SCAN_RESULT");
+            Toast.makeText(this, strResult, Toast.LENGTH_SHORT).show();
             mySetText();
 
         }
