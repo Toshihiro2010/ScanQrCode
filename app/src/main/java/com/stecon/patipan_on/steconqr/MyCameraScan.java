@@ -50,26 +50,8 @@ public class MyCameraScan extends AppCompatActivity implements ZXingScannerView.
         zXingScannerView.setAutoFocus(true);
         //zXingScannerView.setFocusable(false);
 
-        //setContentView(zXingScannerView);
 
 
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST_CODE_ASK_PERMISSIONS:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "You ไม่ใช้", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
     }
 
     @Override

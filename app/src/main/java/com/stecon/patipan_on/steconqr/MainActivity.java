@@ -123,27 +123,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void myCheckCamera() {
 
-        int cameracheck = ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA);
+        int cameracheck = ContextCompat.checkSelfPermission(MainActivity.this,Manifest.permission.CAMERA);
         if (cameracheck != PackageManager.PERMISSION_GRANTED) {
-
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA)) {
-                showMessageOKCancel("You need to allow access to contacts" ,
-                        new DialogInterface.OnClickListener(){
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,Manifest.permission.CAMERA)) {
+                showMessageOKCancel("You need to allow access to Camera" , new DialogInterface.OnClickListener(){
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            ActivityCompat.requestPermissions(MainActivity.this , new String[]{Manifest.permission.CAMERA}, MyCameraScan.REQUEST_CODE_ASK_PERMISSIONS);
+                            ActivityCompat.requestPermissions(MainActivity.this ,
+                                    new String[]{Manifest.permission.CAMERA},
+                                    MyCameraScan.REQUEST_CODE_ASK_PERMISSIONS);
                         }
                 });
                 return;
+
             }
-            ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.CAMERA}, MyCameraScan.REQUEST_CODE_ASK_PERMISSIONS);
+            ActivityCompat.requestPermissions(MainActivity.this,new String[] {Manifest.permission.CAMERA}, MyCameraScan.REQUEST_CODE_ASK_PERMISSIONS);
             return;
         }
+        myStartCamera();
+
+
+    }
+
+    private void myStartCamera() {
         Intent intent = new Intent(this, MyCameraScan.class);
         intent.putExtra("title", "สแกนที่จอดรถ");
         startActivityForResult(intent, REQUEST_QR_SCAN);
-
     }
+
     private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
         new AlertDialog.Builder(MainActivity.this)
                 .setMessage(message)
@@ -197,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case MyCameraScan.REQUEST_CODE_ASK_PERMISSIONS:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
+                    myStartCamera();
                 } else {
                     Toast.makeText(this, "You ไม่ใช้", Toast.LENGTH_SHORT).show();
                 }
