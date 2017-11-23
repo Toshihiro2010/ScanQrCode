@@ -1,7 +1,17 @@
 package com.stecon.patipan_on.steconqr;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,11 +20,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btnGoScan;
     private Button btnGoMyScan;
+    private Button btnGPS;
     public static final int REQUEST_QR_SCAN = 4;
+
 
     private TextView tvResult;
 
@@ -22,21 +36,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String temp;
     private String myPackageName = "com.google.zxing.client.android";
 
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         bidWidGet();
 
+
+
         btnGoScan.setOnClickListener(this);
         btnGoMyScan.setOnClickListener(this);
+        btnGPS.setOnClickListener(this);
 
     }
+
+
 
     private void bidWidGet() {
         btnGoScan = (Button) findViewById(R.id.btnGoScanQrCode);
         tvResult = (TextView) findViewById(R.id.tvResult);
         btnGoMyScan = (Button) findViewById(R.id.btnGoMyScan);
+        btnGPS = (Button) findViewById(R.id.btnGPS);
+
     }
 
     @Override
@@ -57,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent intent = new Intent("com.google.zxing.client.android.SCAN");
             Intent chooser = Intent.createChooser(intent, "Scan With");
             chooser.putExtra("SCAN_MODE", "QR_CODE_MODE");
+
 
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(chooser,REQUEST_QR_SCAN);
@@ -86,11 +112,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         } else if (view == btnGoMyScan) {
-            Intent intent = new Intent(this, MyCameraScan.class);
-            startActivityForResult(intent, REQUEST_QR_SCAN);
+            myCheckCamera();
             //startActivity(intent);
 
+        } else if (view == btnGPS) {
+            Intent intent = new Intent(this, MyGPS.class);
+            startActivity(intent);
         }
+    }
+
+    private void myCheckCamera() {
+
+        int cameracheck = ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA);
+        if (cameracheck != PackageManager.PERMISSION_GRANTED) {
+
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA)) {
+                showMessageOKCancel("You need to allow access to contacts" ,
+                        new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            ActivityCompat.requestPermissions(MainActivity.this , new String[]{Manifest.permission.CAMERA}, MyCameraScan.REQUEST_CODE_ASK_PERMISSIONS);
+                        }
+                });
+                return;
+            }
+            ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.CAMERA}, MyCameraScan.REQUEST_CODE_ASK_PERMISSIONS);
+            return;
+        }
+        Intent intent = new Intent(this, MyCameraScan.class);
+        intent.putExtra("title", "สแกนที่จอดรถ");
+        startActivityForResult(intent, REQUEST_QR_SCAN);
+
+    }
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(MainActivity.this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
     }
 
 
@@ -110,18 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("activity => ", " Onresume");
 
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -140,4 +189,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mySetText();
 
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MyCameraScan.REQUEST_CODE_ASK_PERMISSIONS:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "You ไม่ใช้", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+
 }
